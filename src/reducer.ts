@@ -1,15 +1,17 @@
-import { Action, Location } from 'history';
+import { Action, Location, LocationState } from 'history';
 import { AnyAction, Reducer } from 'redux';
 import { LOCATION_CHANGE } from './actions';
 
-export type RouterState = {
-   location?: Location | null;
+export type RouterState<S = LocationState> = {
+   location?: Location<S> | null;
    action?: Action | null;
-   previousLocations?: { location?: Location | null; action?: Action | null }[];
+   previousLocations?: { location?: Location<S> | null; action?: Action | null }[];
 };
 
-export const createRouterReducer = ({ savePreviousLocations = 0 }): Reducer => {
-   const initialState: RouterState = {
+export const createRouterReducer = <S = LocationState>({
+   savePreviousLocations = 0,
+}): Reducer<RouterState<S>> => {
+   const initialState: RouterState<S> = {
       location: null,
       action: null,
    };

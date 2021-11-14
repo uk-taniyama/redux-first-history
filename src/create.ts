@@ -1,4 +1,4 @@
-import type { History, Location } from 'history';
+import type { History, Location, LocationState } from 'history';
 import type { History as ReachHistory } from '@reach/router';
 import type { Middleware, Reducer, Store } from 'redux';
 import {
@@ -14,25 +14,25 @@ import {
 import { createRouterMiddleware } from './middleware';
 import { createRouterReducer, RouterState } from './reducer';
 
-export interface IHistoryContextOptions {
-   history: History;
+export interface IHistoryContextOptions<S = LocationState> {
+   history: History<S>;
    routerReducerKey?: string;
    oldLocationChangePayload?: boolean;
    reduxTravelling?: boolean;
    showHistoryAction?: boolean;
-   selectRouterState?: <S>(state: S) => RouterState;
+   selectRouterState?: <T>(state: T) => RouterState<T>;
    savePreviousLocations?: number;
    batch?: (callback: () => void) => void;
    reachGlobalHistory?: ReachHistory;
 }
 
-export interface IHistoryContext {
+export interface IHistoryContext<S = LocationState> {
    createReduxHistory: (store: Store) => History & { listenObject: boolean };
    routerMiddleware: Middleware;
-   routerReducer: Reducer;
+   routerReducer: Reducer<RouterState<S>>;
 }
 
-export const createReduxHistoryContext = ({
+export const createReduxHistoryContext = <S = LocationState>({
    history,
    routerReducerKey = 'router',
    reduxTravelling = false,
@@ -41,7 +41,7 @@ export const createReduxHistoryContext = ({
    savePreviousLocations = 0,
    batch,
    reachGlobalHistory,
-}: IHistoryContextOptions): IHistoryContext => {
+}: IHistoryContextOptions<S>): IHistoryContext<S> => {
    let listenObject = false;
 
    // @ts-ignore
@@ -60,7 +60,7 @@ export const createReduxHistoryContext = ({
       selectRouterState = state => state[routerReducerKey];
    }
 
-   const routerReducer = createRouterReducer({ savePreviousLocations });
+   const routerReducer = createRouterReducer<S>({ savePreviousLocations });
    const routerMiddleware = createRouterMiddleware({ history, showHistoryAction });
 
    /** ******************************************  REDUX TRAVELLING  ************************************************** */
